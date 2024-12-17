@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: roboshop
+  labels: # these labels are deployment labels
+    app: frontend
+    project: roboshop
+    tier: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # these labels are used to find the pods
+      app: frontend
+      project: roboshop
+      tier: web
+  template:
+    metadata:
+      labels: # these labels are pod labels
+        app: frontend
+        project: roboshop
+        tier: web
+    spec:
+      containers:
+      - name: frontend
+        image:  "{{ .Values.deployment.imageURL }}:{{ .Values.deployment.imageVersion }}"
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: nginx-conf
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: frontend
+          items:
+            - key: nginx.conf
+              path: nginx.conf
